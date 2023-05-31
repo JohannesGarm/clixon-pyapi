@@ -69,8 +69,6 @@ module filter {
         default true;
       }
 
-      uses filter-update;
-
     }
 
   }
@@ -152,7 +150,6 @@ module filter {
         description "AS Numbers not allowed in AS-path filters, unless explcitely stated.";
       }
 
-      uses filter-update-all;
     }
   }
 
