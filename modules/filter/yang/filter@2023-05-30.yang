@@ -217,36 +217,4 @@ module filter {
     }
 
   }
-
-
-
-  grouping filter-update {
-    ctrl:action update {
-      description "Update filter";
-      input {
-        leaf device-group {
-          type leafref { path "/ctrl:devices/ctrl:device-group/ctrl:name"; }
-        }
-        leaf force { type boolean; default false; }
-      }
-      output {
-        leaf result { type string; }
-      }
-    }
-  }
-
-
-  grouping filter-update-all {
-    ctrl:action update-all {
-      description "Update all filters";
-      input {
-        leaf device-group {
-        type leafref { path "/ctrl:devices/ctrl:device-group/ctrl:name"; }
-        }
-      }
-      output {
-        leaf result { type string; }
-      }
-    }
-  }
 }
