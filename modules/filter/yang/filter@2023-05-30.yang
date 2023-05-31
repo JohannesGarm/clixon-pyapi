@@ -174,7 +174,10 @@ module filter {
 
       leaf ip-version {
         description "IP version for the filter";
-        type ip-version;
+        type enumeration {
+          enum ipv4;
+          enum ipv6;
+        }
         mandatory true;
       }
 
