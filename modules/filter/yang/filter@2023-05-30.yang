@@ -1,0 +1,252 @@
+module filter {
+
+  namespace "http://clicon.org/filter";
+  prefix filter;
+
+  import ietf-inet-types { prefix inet; }
+  import clixon-controller { prefix ctrl; }
+
+  revision 2023-05-30{
+    description "Initial prototype";
+  }
+
+  typedef filter-type {
+    type enumeration {
+      enum prefix-filter;
+      enum prefix-filter-v6;
+      enum as-path-filter;
+    }
+  }
+
+
+  // filter service
+  augment "/ctrl:services" {
+    list filter {
+      key service-name;
+
+      leaf service-name {
+        type string;
+      }
+
+      description "Filter service";
+
+      leaf filter-type {
+        type filter-type;
+        mandatory true;
+      }
+
+      leaf filter-name {
+        type string;
+        mandatory true;
+      }
+
+      leaf as-macro {
+        type string;
+      }
+
+      leaf-list irr-sources {
+        description "Source IRR for filter data (e.g., RIPE, APNIC, RADB)";
+        type string;
+      }
+
+      leaf-list devices {
+        type string;
+        min-elements 1;
+      }
+
+      leaf-list prefix-list {
+        description "Manually added IP prefixes";
+        type inet:ip-prefix;
+      }
+
+      leaf-list as-list {
+        description "Manually added AS numbers";
+        type inet:as-number;
+      }
+
+      leaf auto-update {
+        type boolean;
+        default true;
+      }
+
+      uses filter-update;
+
+    }
+
+  }
+
+  augment "/ctrl:services" {
+    list as-path-filter {
+      key service-name;
+
+      leaf service-name {
+        type string;
+      }
+
+      description "AS Path Filter Service";
+
+      leaf filter-name {
+        description "Filter name on the device.";
+        type string;
+        mandatory true;
+      }
+
+      leaf as-number {
+        description "AS Number of the bgp neighbor. AS Paths not starting with this AS will be filtered.";
+        type inet:as-number;
+        mandatory true;
+      }
+
+      leaf-list as-list {
+        description "Manually added AS numbers";
+        type inet:as-number;
+      }
+
+      leaf as-macro {
+        description "AS Macro to generate the filter from";
+        type string;
+      }
+
+      leaf-list irr-sources {
+        description "Source IRR for filter data (e.g., RIPE, APNIC, RADB)";
+        type string;
+      }
+
+      leaf-list devices {
+        type string;
+        description "Devices to create the filter on";
+        min-elements 1;
+      }
+
+      leaf auto-update {
+        type boolean;
+        default true;
+      }
+    }
+  }
+
+
+  // Properties
+  augment "/ctrl:services/ctrl:properties" {
+    container filter {
+
+      leaf irr-database {
+        type string;
+        description "Internet Routing Registry database host (e.g., whois.radb.net or rr.ntt.net)";
+      }
+
+      leaf as-filter-delta-limit {
+        description "Percentage limit for maximum automated AS filter update";
+        type uint8;
+        default 20;
+      }
+
+      leaf prefix-filter-delta-limit {
+        description "Percentage limit for maximum automated IP prefix filter update";
+        type uint8;
+        default 20;
+      }
+
+      leaf-list reserved-as-numbers {
+        type inet:as-number;
+        description "AS Numbers not allowed in AS-path filters, unless explcitely stated.";
+      }
+
+      uses filter-update-all;
+    }
+  }
+
+  augment "/ctrl:services" {
+    list prefix-filter {
+      key service-name;
+
+      leaf service-name {
+        type string;
+      }
+
+      description "Prefix filter service";
+
+      leaf filter-name {
+        description "Name the filter will have on the devices";
+        type string;
+        mandatory true;
+      }
+
+      leaf ip-version {
+        description "IP version for the filter";
+        type ip-version;
+        mandatory true;
+      }
+
+      leaf as-macro {
+        type string;
+        description "AS Macro to generate prefix-filter from";
+      }
+
+      leaf-list irr-sources {
+        description "Source IRR for filter data (e.g., RIPE, APNIC, RADB)";
+        type string;
+      }
+
+      leaf-list prefix-list {
+        description "Manually added IP prefixes";
+        type inet:ip-prefix;
+      }
+
+      leaf-list devices {
+        description "Device to create the filter on";
+        type leafref {
+          path "/ctrl:devices/ctrl:device/ctrl:name";
+        }
+        min-elements 0;
+      }
+
+      leaf-list device-groups {
+        description "Device groups to create the filter on";
+        type leafref {
+          path "/ctrl:devices/ctrl:device-group/ctrl:name";
+        }
+        min-elements 0;
+      }
+
+      leaf auto-update {
+        type boolean;
+        default true;
+      }
+
+    }
+
+  }
+
+
+
+  grouping filter-update {
+    ctrl:action update {
+      description "Update filter";
+      input {
+        leaf device-group {
+          type leafref { path "/ctrl:devices/ctrl:device-group/ctrl:name"; }
+        }
+        leaf force { type boolean; default false; }
+      }
+      output {
+        leaf result { type string; }
+      }
+    }
+  }
+
+
+  grouping filter-update-all {
+    ctrl:action update-all {
+      description "Update all filters";
+      input {
+        leaf device-group {
+        type leafref { path "/ctrl:devices/ctrl:device-group/ctrl:name"; }
+        }
+      }
+      output {
+        leaf result { type string; }
+      }
+    }
+  }
+}
