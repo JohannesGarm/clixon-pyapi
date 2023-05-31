@@ -125,31 +125,31 @@ module filter {
 
 
   // Properties
-  augment "/ctrl:services/ctrl:properties" {
-    container filter {
+  augment "/ctrl:services" {
+    container properties {
+      container filter {
+        leaf irr-database {
+          type string;
+          description "Internet Routing Registry database host (e.g., whois.radb.net or rr.ntt.net)";
+        }
 
-      leaf irr-database {
-        type string;
-        description "Internet Routing Registry database host (e.g., whois.radb.net or rr.ntt.net)";
+        leaf as-filter-delta-limit {
+          description "Percentage limit for maximum automated AS filter update";
+          type uint8;
+          default 20;
+        }
+
+        leaf prefix-filter-delta-limit {
+          description "Percentage limit for maximum automated IP prefix filter update";
+          type uint8;
+          default 20;
+        }
+
+        leaf-list reserved-as-numbers {
+          type inet:as-number;
+          description "AS Numbers not allowed in AS-path filters, unless explcitely stated.";
+        }
       }
-
-      leaf as-filter-delta-limit {
-        description "Percentage limit for maximum automated AS filter update";
-        type uint8;
-        default 20;
-      }
-
-      leaf prefix-filter-delta-limit {
-        description "Percentage limit for maximum automated IP prefix filter update";
-        type uint8;
-        default 20;
-      }
-
-      leaf-list reserved-as-numbers {
-        type inet:as-number;
-        description "AS Numbers not allowed in AS-path filters, unless explcitely stated.";
-      }
-
     }
   }
 
